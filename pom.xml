@@ -59,6 +59,12 @@
       <artifactId>objectdb-jk</artifactId>
       <version>2.9.5</version>
     </dependency>
+    <!-- JFreeChart: gráficas para visualización de datos -->
+    <dependency>
+      <groupId>org.jfree</groupId>
+      <artifactId>jfreechart</artifactId>
+      <version>1.5.3</version>
+    </dependency>
   </dependencies>
 
   <build>
