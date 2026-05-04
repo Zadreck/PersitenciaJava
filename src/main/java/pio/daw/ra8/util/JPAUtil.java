@@ -12,12 +12,9 @@ import java.util.Map;
  */
 public class JPAUtil {
 
-    /**
-     * Crea un EntityManagerFactory apuntando al fichero indicado.
-     * Borra el fichero previo si existe (inicio limpio en cada demo).
-     */
-    public static EntityManagerFactory crearEMF(String fichero) {
-        eliminarBBDD(fichero);
+    
+
+    public static EntityManagerFactory crearEMFWithoutDelete(String fichero) {
         // Crear directorio padre si no existe (p.e. target/)
         File f = new File(fichero);
         if (f.getParentFile() != null) {
@@ -26,6 +23,15 @@ public class JPAUtil {
         Map<String, String> props = new HashMap<>();
         props.put("jakarta.persistence.jdbc.url", fichero);
         return Persistence.createEntityManagerFactory("ra8DB", props);
+    }
+
+    /**
+     * Crea un EntityManagerFactory apuntando al fichero indicado.
+     * Borra el fichero previo si existe (inicio limpio en cada demo).
+     */
+    public static EntityManagerFactory crearEMF(String fichero) {
+        eliminarBBDD(fichero);
+        return crearEMFWithoutDelete(fichero);
     }
 
     /** Elimina el fichero .odb y el fichero de diario asociado ($). */

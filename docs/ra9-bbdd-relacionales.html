@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RA9 – Bases de datos relacionales con Spring Boot y MySQL</title>
+  <style>
+    :root {
+      --primary:   #145a32;
+      --accent:    #1e8449;
+      --light-bg:  #eafaf1;
+      --code-bg:   #1e1e2e;
+      --code-fg:   #cdd6f4;
+      --exercise:  #fef9e7;
+      --exercise-border: #f0c040;
+      --note-bg:   #e8f6f3;
+      --note-border: #17a589;
+      --warn-bg:   #fdedec;
+      --warn-border: #e74c3c;
+      --font-main: 'Segoe UI', system-ui, sans-serif;
+      --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-main);
+      font-size: 16px;
+      line-height: 1.7;
+      color: #2c3e50;
+      background: #f8f9fa;
+    }
+
+    /* ── Layout ── */
+    .page-wrapper { display: flex; min-height: 100vh; }
+
+    nav#toc {
+      width: 270px;
+      min-width: 270px;
+      background: var(--primary);
+      color: #ecf0f1;
+      padding: 2rem 1.2rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    nav#toc h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #82e0aa;
+      margin-bottom: 1rem;
+    }
+
+    nav#toc ul { list-style: none; }
+    nav#toc ul li { margin-bottom: 0.25rem; }
+
+    nav#toc a {
+      color: #a9dfbf;
+      text-decoration: none;
+      font-size: 0.88rem;
+      display: block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    nav#toc a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    nav#toc .toc-section { margin-top: 0.8rem; }
+    nav#toc .toc-section > a {
+      color: #d5f5e3;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    nav#toc .toc-sub { padding-left: 1rem; }
+
+    main {
+      flex: 1;
+      padding: 3rem 4rem;
+      max-width: 960px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      padding: 3rem 4rem 2.5rem;
+    }
+
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      margin-bottom: 0.8rem;
+    }
+
+    header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.6rem; }
+    header p { font-size: 1.05rem; opacity: 0.9; max-width: 640px; }
+
+    .meta-bar {
+      background: var(--light-bg);
+      border-left: 4px solid var(--accent);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      gap: 2.5rem;
+      font-size: 0.9rem;
+      color: var(--primary);
+      flex-wrap: wrap;
+    }
+    .meta-bar strong { font-weight: 700; }
+
+    /* ── Sections ── */
+    section { margin-bottom: 3.5rem; }
+
+    h2 {
+      font-size: 1.6rem;
+      color: var(--primary);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    h3 { font-size: 1.15rem; color: var(--accent); margin: 1.5rem 0 0.6rem; }
+    h4 { font-size: 1rem; color: #555; margin: 1.2rem 0 0.4rem; font-weight: 600; }
+
+    p { margin-bottom: 0.85rem; }
+    ul, ol { margin: 0.6rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.3rem; }
+
+    /* ── Code ── */
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      padding: 1.2rem 1.4rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.6;
+      margin: 1rem 0 1.4rem;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: #e8f8f0;
+      color: #145a32;
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+    }
+
+    pre code { background: transparent; color: inherit; padding: 0; border-radius: 0; font-size: 1em; }
+
+    .kw  { color: #89b4fa; }
+    .typ { color: #a6e3a1; }
+    .str { color: #a6e3a1; }
+    .cm  { color: #6c7086; font-style: italic; }
+    .ann { color: #fab387; }
+    .num { color: #fab387; }
+    .mth { color: #89dceb; }
+
+    /* ── Callouts ── */
+    .note, .exercise, .warning, .resources {
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0;
+    }
+
+    .note { background: var(--note-bg); border-left: 4px solid var(--note-border); }
+    .note::before { content: "ℹ️  Nota: "; font-weight: 700; color: #148f77; }
+
+    .warning { background: var(--warn-bg); border-left: 4px solid var(--warn-border); }
+    .warning::before { content: "⚠️  Atención: "; font-weight: 700; color: #c0392b; }
+
+    .exercise { background: var(--exercise); border-left: 4px solid var(--exercise-border); }
+    .exercise-title { font-weight: 700; color: #7d6608; font-size: 0.95rem; margin-bottom: 0.4rem; }
+    .exercise-title::before { content: "✏️  "; }
+
+    .resources { background: #f4ecf7; border-left: 4px solid #8e44ad; }
+    .resources-title { font-weight: 700; color: #6c3483; font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .resources-title::before { content: "🔗  "; }
+    .resources ul { margin-bottom: 0; }
+    .resources a { color: #7d3c98; }
+    .resources a:hover { color: #6c3483; text-decoration: underline; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.92rem; }
+    th { background: var(--primary); color: #fff; padding: 0.6rem 1rem; text-align: left; }
+    td { padding: 0.5rem 1rem; border-bottom: 1px solid #d5f5e3; }
+    tr:nth-child(even) td { background: #eafaf1; }
+
+    /* ── Session label ── */
+    .session-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.15rem 0.6rem;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Footer ── */
+    footer { background: var(--primary); color: #a9dfbf; text-align: center; padding: 1.5rem; font-size: 0.85rem; }
+
+    @media (max-width: 900px) {
+      nav#toc { display: none; }
+      main { padding: 1.5rem; }
+      header { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">DAW · Programación · Java</div>
+  <h1>RA9 – Bases de datos relacionales con Spring Boot y MySQL</h1>
+  <p>Unidad didáctica para la conexión de aplicaciones Spring Boot con MySQL mediante Docker y Spring Data JPA.</p>
+</header>
+
+<div class="meta-bar">
+  <span><strong>Duración estimada:</strong> 15–17 horas</span>
+  <span><strong>Java:</strong> 17+</span>
+  <span><strong>Framework:</strong> Spring Boot 3.3</span>
+  <span><strong>Base de datos:</strong> MySQL 8 en Docker</span>
+  <span><strong>Prerrequisitos:</strong> RA8, POO en Java, Maven básico</span>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- ──────────────── SIDEBAR TOC ──────────────── -->
+  <nav id="toc">
+    <h2>Contenidos</h2>
+    <ul>
+      <li class="toc-section"><a href="#intro">1. Introducción</a>
+        <ul class="toc-sub">
+          <li><a href="#comparativa">Comparativa RA8 vs RA9</a></li>
+          <li><a href="#spring-boot">¿Qué es Spring Boot?</a></li>
+        </ul>
+      </li>
+      <li class="toc-section"><a href="#config">2. Configuración</a>
+        <ul class="toc-sub">
+          <li><a href="#docker">Docker y MySQL</a></li>
+          <li><a href="#pom">pom.xml y starters</a></li>
+          <li><a href="#properties">application.properties</a></li>
+          <li><a href="#primera-entidad">Primera entidad</a></li>
+        </ul>
+      </li>
+      <li class="toc-section"><a href="#crud">3. API REST y CRUD</a>
+        <ul class="toc-sub">
+          <li><a href="#capas">Arquitectura por capas</a></li>
+          <li><a href="#restcontroller">@RestController</a></li>
+          <li><a href="#errores">Manejo de errores</a></li>
+        </ul>
+      </li>
+      <li class="toc-section"><a href="#consultas">4. Consultas Spring Data JPA</a>
+        <ul class="toc-sub">
+          <li><a href="#derivados">Métodos derivados</a></li>
+          <li><a href="#query">@Query JPQL</a></li>
+          <li><a href="#paginacion">Paginación</a></li>
+        </ul>
+      </li>
+      <li class="toc-section"><a href="#relaciones">5. Relaciones entre entidades</a>
+        <ul class="toc-sub">
+          <li><a href="#onetomany">@OneToMany y @ManyToOne</a></li>
+          <li><a href="#manytomany">@ManyToMany</a></li>
+          <li><a href="#dto">DTOs y serialización JSON</a></li>
+        </ul>
+      </li>
+      <li class="toc-section"><a href="#transacciones">6. Transacciones y validación</a>
+        <ul class="toc-sub">
+          <li><a href="#transactional">@Transactional</a></li>
+          <li><a href="#validation">Bean Validation</a></li>
+        </ul>
+      </li>
+      <li class="toc-section"><a href="#recursos">Recursos oficiales</a></li>
+    </ul>
+  </nav>
+
+  <!-- ──────────────── MAIN CONTENT ──────────────── -->
+  <main>
+
+    <!-- ════════════════════════════════════════════
+         SECCIÓN 1 – INTRODUCCIÓN
+    ═════════════════════════════════════════════ -->
+    <section id="intro">
+      <div class="session-tag">Sesiones 1–2 · ~2 h</div>
+      <h2>1. Introducción: de RA8 a RA9</h2>
+
+      <p>
+        En RA8 trabajamos con <strong>bases de datos orientadas a objetos</strong> (ObjectDB + JPA).
+        En RA9 damos el salto a las <strong>bases de datos relacionales</strong>, que son las más
+        extendidas en la industria web: MySQL, PostgreSQL, MariaDB, SQL Server, Oracle…
+      </p>
+      <p>
+        La buena noticia es que la mayoría de conceptos JPA que ya conoces se reutilizan directamente:
+        <code>@Entity</code>, <code>@Id</code>, <code>@OneToMany</code>, JPQL… La diferencia está en la
+        <em>infraestructura</em> (MySQL en lugar de un fichero <code>.odb</code>) y en el <em>marco de trabajo</em>
+        (Spring Boot en lugar de un programa <code>main()</code> aislado).
+      </p>
+
+      <h3 id="comparativa">Tabla de equivalencias RA8 → RA9</h3>
+      <p>Esta tabla es el ancla pedagógica más importante del módulo: lo que aprendiste en RA8 tiene
+        una correspondencia directa en RA9.</p>
+
+      <table>
+        <thead>
+          <tr><th>Concepto en RA8</th><th>Equivalente en RA9</th><th>Nota</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>@Entity</code>, <code>@Id</code>, <code>@OneToMany</code></td><td>Exactamente igual</td><td>Mismas anotaciones JPA</td></tr>
+          <tr><td><code>EntityManagerFactory</code></td><td>Gestionado automáticamente por Spring Boot</td><td>No hay que crearlo manualmente</td></tr>
+          <tr><td><code>EntityManager.persist()</code></td><td><code>repository.save()</code></td><td>JpaRepository</td></tr>
+          <tr><td><code>EntityManager.find()</code></td><td><code>repository.findById()</code></td><td>Devuelve <code>Optional&lt;T&gt;</code></td></tr>
+          <tr><td><code>EntityManager.remove()</code></td><td><code>repository.deleteById()</code></td><td></td></tr>
+          <tr><td>JPQL con <code>createQuery()</code></td><td><code>@Query("SELECT ...")</code> en el repositorio</td><td>Misma sintaxis JPQL</td></tr>
+          <tr><td><code>setFirstResult / setMaxResults</code></td><td><code>Pageable</code> / <code>Page&lt;T&gt;</code></td><td>Paginación automática</td></tr>
+          <tr><td><code>EntityTransaction.begin/commit/rollback</code></td><td><code>@Transactional</code></td><td>Spring lo gestiona</td></tr>
+          <tr><td><code>persistence.xml</code></td><td><code>application.properties</code></td><td>Datasource + ddl-auto</td></tr>
+          <tr><td>Programa <code>main()</code> de consola</td><td>Endpoint <code>@RestController</code></td><td>HTTP en lugar de stdout</td></tr>
+          <tr><td>Base de datos en fichero <code>.odb</code></td><td>MySQL en Docker (<code>ra9db</code>)</td><td>Servidor real en red local</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="spring-boot">¿Qué es Spring Boot?</h3>
+      <p>
+        <strong>Spring Boot</strong> es el framework Java más utilizado para desarrollar aplicaciones web y microservicios.
+        Su principal ventaja es la <strong>auto-configuración</strong>: detecta automáticamente qué bibliotecas hay
+        en el classpath y las configura con valores por defecto sensatos. Por ejemplo, si detecta
+        <code>spring-boot-starter-data-jpa</code> y <code>mysql-connector-j</code>, configura automáticamente
+        Hibernate como proveedor JPA y lo conecta al datasource que tú definiste en <code>application.properties</code>.
+      </p>
+      <ul>
+        <li><strong>Starter POMs:</strong> dependencias empaquetadas temáticamente. <code>spring-boot-starter-web</code>
+            incluye Tomcat embebido + Spring MVC. <code>spring-boot-starter-data-jpa</code> incluye Hibernate + Spring Data JPA.</li>
+        <li><strong>Tomcat embebido:</strong> la aplicación lleva su propio servidor web. No hace falta desplegarla en un servidor externo; basta con ejecutar <code>mvn spring-boot:run</code>.</li>
+        <li><strong>@SpringBootApplication:</strong> la anotación de arranque. Combina <code>@Configuration</code>,
+            <code>@EnableAutoConfiguration</code> y <code>@ComponentScan</code>.</li>
+      </ul>
+
+      <div class="note">
+        En este módulo usamos Spring Boot como <strong>backend de una API REST</strong>. Los datos se exponen como JSON
+        a través de HTTP. En un proyecto real, el frontend (React, Angular, o una plantilla Thymeleaf)
+        consumiría esos endpoints.
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-title">Ejercicio 1.1 – Análisis comparativo y modelo de datos</div>
+        <p>
+          <strong>Parte A.</strong> Debate en clase: ¿por qué las BBDD relacionales dominan en producción
+          frente a las orientadas a objetos? Lista al menos tres argumentos de cada lado.
+        </p>
+        <p>
+          <strong>Parte B.</strong> Diseña en papel el modelo de datos del cine que usaremos durante el módulo.
+          Identifica las entidades (<em>Pelicula, Director, Genero, Sala, Proyeccion, Entrada</em>),
+          sus atributos y las relaciones entre ellas (tipo de cardinalidad). Dibuja el diagrama ER.
+        </p>
+      </div>
+
+      <div class="resources">
+        <div class="resources-title">Recursos</div>
+        <ul>
+          <li><a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot – Página oficial</a></li>
+          <li><a href="https://docs.spring.io/spring-data/jpa/reference/" target="_blank">Spring Data JPA – Referencia oficial</a></li>
+          <li><a href="https://start.spring.io" target="_blank">Spring Initializr – Generador de proyectos</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         SECCIÓN 2 – CONFIGURACIÓN
+    ═════════════════════════════════════════════ -->
+    <section id="config">
+      <div class="session-tag">Sesiones 3–5 · ~3 h</div>
+      <h2>2. Configuración: Docker, MySQL y Spring Boot</h2>
+
+      <h3 id="docker">2.1 MySQL en Docker</h3>
+      <p>
+        En lugar de instalar MySQL en el sistema operativo (lo que puede generar conflictos de versiones
+        entre alumnos), lo ejecutamos en un <strong>contenedor Docker</strong>. Docker garantiza que todos
+        trabajan con exactamente la misma versión y configuración de MySQL.
+      </p>
+      <p>El fichero <code>docker-compose.yml</code> en la raíz del proyecto define el contenedor:</p>
+
+<pre><code><span class="cm"># docker-compose.yml</span>
+services:
+  mysql_ra9:
+    image: mysql:<span class="num">8.4</span>
+    container_name: mysql_ra9
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: ra9db
+      MYSQL_USER: ra9user
+      MYSQL_PASSWORD: ra9pass
+    ports:
+      - <span class="str">"3306:3306"</span>
+    volumes:
+      - mysql_ra9_data:/var/lib/mysql      <span class="cm"># datos persistentes entre reinicios</span>
+    healthcheck:
+      test: [<span class="str">"CMD"</span>, <span class="str">"mysqladmin"</span>, <span class="str">"ping"</span>, <span class="str">"-h"</span>, <span class="str">"localhost"</span>]
+      interval: <span class="num">10</span>s
+      timeout: <span class="num">5</span>s
+      retries: <span class="num">5</span>
+
+volumes:
+  mysql_ra9_data:</code></pre>
+
+      <p><strong>Comandos esenciales de Docker:</strong></p>
+      <table>
+        <thead><tr><th>Comando</th><th>Acción</th></tr></thead>
+        <tbody>
+          <tr><td><code>docker compose up -d</code></td><td>Inicia MySQL en segundo plano</td></tr>
+          <tr><td><code>docker compose down</code></td><td>Para el contenedor (los datos se conservan en el volumen)</td></tr>
+          <tr><td><code>docker compose down -v</code></td><td>Para el contenedor Y borra los datos (inicio limpio)</td></tr>
+          <tr><td><code>docker compose ps</code></td><td>Ver estado del contenedor</td></tr>
+          <tr><td><code>docker exec -it mysql_ra9 mysql -u ra9user -pra9pass ra9db</code></td><td>Abrir consola SQL de MySQL</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="pom">2.2 pom.xml: Spring Boot parent y starters</h3>
+      <p>
+        El fichero <code>pom.xml</code> añade Spring Boot como <strong>parent POM</strong>. Esto permite gestionar
+        versiones de todas las dependencias automáticamente, sin especificar versión individual para cada starter.
+        Además se añaden cuatro dependencias para RA9:
+      </p>
+
+<pre><code><span class="cm">&lt;!-- Spring Boot parent: gestiona versiones de JUnit, Hibernate, Jackson... --&gt;</span>
+<span class="kw">&lt;parent&gt;</span>
+    <span class="kw">&lt;groupId&gt;</span>org.springframework.boot<span class="kw">&lt;/groupId&gt;</span>
+    <span class="kw">&lt;artifactId&gt;</span>spring-boot-starter-parent<span class="kw">&lt;/artifactId&gt;</span>
+    <span class="kw">&lt;version&gt;</span>3.3.5<span class="kw">&lt;/version&gt;</span>
+<span class="kw">&lt;/parent&gt;</span>
+
+<span class="cm">&lt;!-- Dependencias RA9 --&gt;</span>
+<span class="kw">&lt;dependency&gt;</span>
+    <span class="kw">&lt;groupId&gt;</span>org.springframework.boot<span class="kw">&lt;/groupId&gt;</span>
+    <span class="kw">&lt;artifactId&gt;</span>spring-boot-starter-data-jpa<span class="kw">&lt;/artifactId&gt;</span>
+<span class="kw">&lt;/dependency&gt;</span>
+<span class="kw">&lt;dependency&gt;</span>
+    <span class="kw">&lt;groupId&gt;</span>org.springframework.boot<span class="kw">&lt;/groupId&gt;</span>
+    <span class="kw">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="kw">&lt;/artifactId&gt;</span>
+<span class="kw">&lt;/dependency&gt;</span>
+<span class="kw">&lt;dependency&gt;</span>
+    <span class="kw">&lt;groupId&gt;</span>org.springframework.boot<span class="kw">&lt;/groupId&gt;</span>
+    <span class="kw">&lt;artifactId&gt;</span>spring-boot-starter-validation<span class="kw">&lt;/artifactId&gt;</span>
+<span class="kw">&lt;/dependency&gt;</span>
+<span class="kw">&lt;dependency&gt;</span>
+    <span class="kw">&lt;groupId&gt;</span>com.mysql<span class="kw">&lt;/groupId&gt;</span>
+    <span class="kw">&lt;artifactId&gt;</span>mysql-connector-j<span class="kw">&lt;/artifactId&gt;</span>
+    <span class="kw">&lt;scope&gt;</span>runtime<span class="kw">&lt;/scope&gt;</span>
+<span class="kw">&lt;/dependency&gt;</span></code></pre>
+
+      <h3 id="properties">2.3 application.properties</h3>
+      <p>
+        Sustituye al <code>persistence.xml</code> de RA8. Define la conexión a la base de datos y el comportamiento de Hibernate.
+        La propiedad más importante para aprender es <code>spring.jpa.hibernate.ddl-auto</code>:
+      </p>
+
+<pre><code><span class="cm"># src/main/resources/application.properties</span>
+
+<span class="cm"># ── Conexión a MySQL (Docker) ──────────────────────────────</span>
+spring.datasource.url=jdbc:mysql://localhost:<span class="num">3306</span>/ra9db\
+  ?serverTimezone=Europe/Madrid&amp;useSSL=false
+spring.datasource.username=ra9user
+spring.datasource.password=ra9pass
+
+<span class="cm"># ── JPA / Hibernate ───────────────────────────────────────</span>
+spring.jpa.hibernate.ddl-auto=update   <span class="cm"># crea tablas si no existen</span>
+spring.jpa.show-sql=true               <span class="cm"># muestra el SQL generado por Hibernate</span>
+spring.jpa.properties.hibernate.format_sql=true</code></pre>
+
+      <table>
+        <thead><tr><th>Valor ddl-auto</th><th>Comportamiento</th><th>¿Cuándo usar?</th></tr></thead>
+        <tbody>
+          <tr><td><code>none</code></td><td>No toca el schema</td><td>Producción (schema gestionado aparte)</td></tr>
+          <tr><td><code>validate</code></td><td>Verifica que el schema coincide con las entidades</td><td>Producción / staging</td></tr>
+          <tr><td><code>update</code></td><td>Crea tablas nuevas y añade columnas, no elimina</td><td>Desarrollo</td></tr>
+          <tr><td><code>create</code></td><td>Borra y recrea todas las tablas al arrancar</td><td>Tests</td></tr>
+          <tr><td><code>create-drop</code></td><td>Crea al arrancar y elimina al parar</td><td>Tests de integración</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        Con <code>show-sql=true</code> verás el SQL exacto que Hibernate envía a MySQL. Es la puente entre lo
+        que conoces de JPA (RA8) y el SQL real de una base de datos relacional. Actívalo siempre durante el aprendizaje.
+      </div>
+
+      <h3 id="primera-entidad">2.4 Primera entidad en MySQL</h3>
+      <p>
+        La clase principal de la aplicación RA9 es <code>Ra9Application.java</code>. Usa
+        <code>@EntityScan</code> y <code>@EnableJpaRepositories</code> apuntando al paquete <code>pio.daw.ra9</code>
+        para que Spring Boot no intente gestionar las entidades de RA8 (ObjectDB):
+      </p>
+
+<pre><code><span class="ann">@SpringBootApplication</span>
+<span class="ann">@EntityScan</span>(<span class="str">"pio.daw.ra9.modelo"</span>)
+<span class="ann">@EnableJpaRepositories</span>(<span class="str">"pio.daw.ra9.repositorio"</span>)
+<span class="kw">public class</span> <span class="typ">Ra9Application</span> {
+    <span class="kw">public static void</span> <span class="mth">main</span>(<span class="typ">String</span>[] args) {
+        <span class="typ">SpringApplication</span>.<span class="mth">run</span>(<span class="typ">Ra9Application</span>.class, args);
+    }
+}</code></pre>
+
+      <p>
+        La entidad <code>Pelicula</code> usa las mismas anotaciones JPA que en RA8, pero ahora Hibernate
+        crea una tabla real en MySQL:
+      </p>
+
+<pre><code><span class="ann">@Entity</span>
+<span class="ann">@Table</span>(name = <span class="str">"pelicula"</span>)
+<span class="kw">public class</span> <span class="typ">Pelicula</span> {
+
+    <span class="ann">@Id</span>
+    <span class="ann">@GeneratedValue</span>(strategy = <span class="typ">GenerationType</span>.IDENTITY)  <span class="cm">// AUTO_INCREMENT en MySQL</span>
+    <span class="kw">private</span> <span class="typ">Long</span> id;
+
+    <span class="ann">@NotBlank</span>(message = <span class="str">"El título no puede estar vacío"</span>)
+    <span class="ann">@Column</span>(nullable = <span class="kw">false</span>)
+    <span class="kw">private</span> <span class="typ">String</span> titulo;
+
+    <span class="ann">@Positive</span>
+    <span class="kw">private</span> <span class="typ">Integer</span> duracion;  <span class="cm">// minutos</span>
+
+    <span class="ann">@Column</span>(name = <span class="str">"precio_entrada"</span>, precision = <span class="num">6</span>, scale = <span class="num">2</span>)
+    <span class="kw">private</span> <span class="typ">BigDecimal</span> precioEntrada;
+
+    <span class="cm">// constructor vacío obligatorio para JPA (igual que en RA8)</span>
+    <span class="kw">public</span> <span class="typ">Pelicula</span>() {}
+    <span class="cm">// ... getters y setters</span>
+}</code></pre>
+
+      <p>
+        El repositorio es una <strong>interfaz</strong> que extiende <code>JpaRepository</code>. No hace falta
+        implementar nada: Spring Data JPA genera automáticamente los métodos CRUD en tiempo de arranque.
+      </p>
+
+<pre><code><span class="kw">public interface</span> <span class="typ">PeliculaRepository</span> <span class="kw">extends</span> <span class="typ">JpaRepository</span>&lt;<span class="typ">Pelicula</span>, <span class="typ">Long</span>&gt; {
+    <span class="cm">// Sin código: save(), findById(), findAll(), deleteById() ya están disponibles</span>
+}</code></pre>
+
+      <p>
+        El <code>DataLoader</code> implementa <code>CommandLineRunner</code> para insertar datos de prueba al arrancar:
+      </p>
+
+<pre><code><span class="ann">@Component</span>
+<span class="kw">public class</span> <span class="typ">DataLoader</span> <span class="kw">implements</span> <span class="typ">CommandLineRunner</span> {
+
+    <span class="kw">private final</span> <span class="typ">PeliculaRepository</span> peliculaRepo;
+
+    <span class="kw">public</span> <span class="typ">DataLoader</span>(<span class="typ">PeliculaRepository</span> peliculaRepo) {
+        <span class="kw">this</span>.peliculaRepo = peliculaRepo;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> <span class="mth">run</span>(<span class="typ">String</span>... args) {
+        <span class="kw">if</span> (peliculaRepo.<span class="mth">count</span>() &gt; <span class="num">0</span>) <span class="kw">return</span>; <span class="cm">// no recargar si ya hay datos</span>
+        peliculaRepo.<span class="mth">save</span>(<span class="kw">new</span> <span class="typ">Pelicula</span>(<span class="str">"Inception"</span>, <span class="num">2010</span>, <span class="num">148</span>, <span class="kw">new</span> <span class="typ">BigDecimal</span>(<span class="str">"9.50"</span>)));
+        peliculaRepo.<span class="mth">save</span>(<span class="kw">new</span> <span class="typ">Pelicula</span>(<span class="str">"Dune"</span>,      <span class="num">2021</span>, <span class="num">155</span>, <span class="kw">new</span> <span class="typ">BigDecimal</span>(<span class="str">"8.50"</span>)));
+    }
+}</code></pre>
+
+      <div class="exercise">
+        <div class="exercise-title">Ejercicio 2.1 – Primera entidad en MySQL</div>
+        <ol>
+          <li>Arranca MySQL: <code>docker compose up -d</code></li>
+          <li>Arranca la aplicación: <code>mvn spring-boot:run</code></li>
+          <li>Observa en el log el SQL que Hibernate genera para crear la tabla <code>pelicula</code></li>
+          <li>Conéctate al contenedor: <code>docker exec -it mysql_ra9 mysql -u ra9user -pra9pass ra9db</code></li>
+          <li>Ejecuta en MySQL: <code>SHOW TABLES;</code> y <code>SELECT * FROM pelicula;</code></li>
+          <li>Modifica el precio de una película directamente con SQL: <code>UPDATE pelicula SET precio_entrada = 5.00 WHERE id = 1;</code></li>
+          <li>Reinicia la app. ¿Se pierde el cambio? ¿Por qué?</li>
+        </ol>
+      </div>
+
+      <div class="resources">
+        <div class="resources-title">Recursos</div>
+        <ul>
+          <li><a href="https://hub.docker.com/_/mysql" target="_blank">MySQL – Docker Hub</a></li>
+          <li><a href="https://docs.docker.com/compose/" target="_blank">Docker Compose – Documentación</a></li>
+          <li><a href="https://docs.spring.io/spring-boot/reference/data/sql.html" target="_blank">Spring Boot – SQL databases</a></li>
+          <li><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/getting-started.html" target="_blank">Spring Data JPA – Getting started</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         SECCIÓN 3 – API REST Y CRUD
+    ═════════════════════════════════════════════ -->
+    <section id="crud">
+      <div class="session-tag">Sesiones 6–8 · ~4 h</div>
+      <h2>3. API REST: CRUD con Spring Data JPA</h2>
+
+      <h3 id="capas">3.1 Arquitectura por capas</h3>
+      <p>
+        Una aplicación Spring Boot bien estructurada separa el código en tres capas. Cada capa tiene
+        una única responsabilidad y solo se comunica con la inmediatamente inferior:
+      </p>
+      <table>
+        <thead><tr><th>Capa</th><th>Anotación</th><th>Responsabilidad</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Controlador</strong></td><td><code>@RestController</code></td><td>Recibe peticiones HTTP, valida entrada, devuelve respuesta JSON</td></tr>
+          <tr><td><strong>Servicio</strong></td><td><code>@Service</code></td><td>Lógica de negocio, transacciones, llamadas a repositorios</td></tr>
+          <tr><td><strong>Repositorio</strong></td><td><code>@Repository</code> (implícito)</td><td>Acceso a la base de datos mediante Spring Data JPA</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="restcontroller">3.2 @RestController y verbos HTTP</h3>
+      <p>
+        El <code>@RestController</code> mapea métodos Java a endpoints HTTP. La convención REST usa
+        los verbos HTTP para expresar la operación:
+      </p>
+
+<pre><code><span class="ann">@RestController</span>
+<span class="ann">@RequestMapping</span>(<span class="str">"/peliculas"</span>)
+<span class="kw">public class</span> <span class="typ">PeliculaController</span> {
+
+    <span class="kw">private final</span> <span class="typ">PeliculaService</span> peliculaService;
+
+    <span class="kw">public</span> <span class="typ">PeliculaController</span>(<span class="typ">PeliculaService</span> peliculaService) {
+        <span class="kw">this</span>.peliculaService = peliculaService;
+    }
+
+    <span class="cm">// GET /peliculas  →  200 OK  →  lista de todas las películas</span>
+    <span class="ann">@GetMapping</span>
+    <span class="kw">public</span> <span class="typ">List</span>&lt;<span class="typ">PeliculaDTO</span>&gt; <span class="mth">listarTodas</span>() {
+        <span class="kw">return</span> peliculaService.<span class="mth">listarTodas</span>();
+    }
+
+    <span class="cm">// GET /peliculas/1  →  200 OK  →  una película  |  404 si no existe</span>
+    <span class="ann">@GetMapping</span>(<span class="str">"/{id}"</span>)
+    <span class="kw">public</span> <span class="typ">PeliculaDTO</span> <span class="mth">buscarPorId</span>(<span class="ann">@PathVariable</span> <span class="typ">Long</span> id) {
+        <span class="kw">return</span> peliculaService.<span class="mth">buscarPorId</span>(id);
+    }
+
+    <span class="cm">// POST /peliculas  →  201 Created  →  película recién creada</span>
+    <span class="ann">@PostMapping</span>
+    <span class="kw">public</span> <span class="typ">ResponseEntity</span>&lt;<span class="typ">PeliculaDTO</span>&gt; <span class="mth">crear</span>(<span class="ann">@Valid</span> <span class="ann">@RequestBody</span> <span class="typ">Pelicula</span> pelicula) {
+        <span class="kw">return</span> <span class="typ">ResponseEntity</span>.<span class="mth">status</span>(<span class="typ">HttpStatus</span>.CREATED)
+                             .<span class="mth">body</span>(peliculaService.<span class="mth">guardar</span>(pelicula));
+    }
+
+    <span class="cm">// PUT /peliculas/1  →  200 OK  →  película actualizada</span>
+    <span class="ann">@PutMapping</span>(<span class="str">"/{id}"</span>)
+    <span class="kw">public</span> <span class="typ">PeliculaDTO</span> <span class="mth">actualizar</span>(<span class="ann">@PathVariable</span> <span class="typ">Long</span> id,
+                                    <span class="ann">@Valid</span> <span class="ann">@RequestBody</span> <span class="typ">Pelicula</span> datos) {
+        <span class="kw">return</span> peliculaService.<span class="mth">actualizar</span>(id, datos);
+    }
+
+    <span class="cm">// DELETE /peliculas/1  →  204 No Content</span>
+    <span class="ann">@DeleteMapping</span>(<span class="str">"/{id}"</span>)
+    <span class="kw">public</span> <span class="typ">ResponseEntity</span>&lt;<span class="typ">Void</span>&gt; <span class="mth">eliminar</span>(<span class="ann">@PathVariable</span> <span class="typ">Long</span> id) {
+        peliculaService.<span class="mth">eliminar</span>(id);
+        <span class="kw">return</span> <span class="typ">ResponseEntity</span>.<span class="mth">noContent</span>().<span class="mth">build</span>();
+    }
+}</code></pre>
+
+      <p>El servicio actúa como intermediario entre controlador y repositorio:</p>
+
+<pre><code><span class="ann">@Service</span>
+<span class="ann">@Transactional</span>
+<span class="kw">public class</span> <span class="typ">PeliculaService</span> {
+
+    <span class="kw">private final</span> <span class="typ">PeliculaRepository</span> peliculaRepo;
+
+    <span class="kw">public</span> <span class="typ">PeliculaService</span>(<span class="typ">PeliculaRepository</span> peliculaRepo) {
+        <span class="kw">this</span>.peliculaRepo = peliculaRepo;
+    }
+
+    <span class="ann">@Transactional</span>(readOnly = <span class="kw">true</span>)
+    <span class="kw">public</span> <span class="typ">PeliculaDTO</span> <span class="mth">buscarPorId</span>(<span class="typ">Long</span> id) {
+        <span class="typ">Pelicula</span> p = peliculaRepo.<span class="mth">findById</span>(id)
+            .<span class="mth">orElseThrow</span>(() -&gt; <span class="kw">new</span> <span class="typ">RecursoNoEncontradoException</span>(<span class="str">"Película no encontrada: "</span> + id));
+        <span class="kw">return</span> <span class="typ">PeliculaDTO</span>.<span class="mth">desde</span>(p);
+    }
+}</code></pre>
+
+      <h3 id="errores">3.3 Manejo de errores HTTP con @RestControllerAdvice</h3>
+      <p>
+        En lugar de capturar excepciones en cada controlador, centralizamos el manejo en
+        <code>GlobalExceptionHandler</code>. Spring invoca automáticamente el método correcto según el tipo de excepción:
+      </p>
+
+<pre><code><span class="ann">@RestControllerAdvice</span>
+<span class="kw">public class</span> <span class="typ">GlobalExceptionHandler</span> {
+
+    <span class="ann">@ExceptionHandler</span>(<span class="typ">RecursoNoEncontradoException</span>.class)
+    <span class="kw">public</span> <span class="typ">ResponseEntity</span>&lt;<span class="typ">Map</span>&lt;<span class="typ">String</span>, <span class="typ">Object</span>&gt;&gt; <span class="mth">handleNotFound</span>(<span class="typ">RecursoNoEncontradoException</span> ex) {
+        <span class="cm">// devuelve JSON con status 404</span>
+    }
+
+    <span class="ann">@ExceptionHandler</span>(<span class="typ">MethodArgumentNotValidException</span>.class)
+    <span class="kw">public</span> <span class="typ">ResponseEntity</span>&lt;...&gt; <span class="mth">handleValidacion</span>(...) {
+        <span class="cm">// devuelve JSON con status 400 + lista de errores de validación</span>
+    }
+}</code></pre>
+
+      <div class="exercise">
+        <div class="exercise-title">Ejercicio 3.1 – API de cine con curl</div>
+        <p>Con la app arrancada, ejecuta los siguientes comandos y anota el código HTTP de cada respuesta:</p>
+        <pre style="background:#1e1e2e;color:#cdd6f4;padding:1rem;border-radius:8px;font-size:0.83rem">
+# Listar todas las películas
+curl -s http://localhost:8080/peliculas | jq
+
+# Crear una película nueva (devuelve 201 Created)
+curl -s -X POST http://localhost:8080/peliculas \
+  -H "Content-Type: application/json" \
+  -d '{"titulo":"El padrino","anio":1972,"duracion":175,"precioEntrada":8.00}' | jq
+
+# Actualizar el precio (devuelve 200 OK)
+curl -s -X PUT http://localhost:8080/peliculas/1 \
+  -H "Content-Type: application/json" \
+  -d '{"titulo":"Inception","anio":2010,"duracion":148,"precioEntrada":10.00}' | jq
+
+# Eliminar (devuelve 204 No Content)
+curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:8080/peliculas/99
+
+# Buscar uno que no existe (devuelve 404)
+curl -s http://localhost:8080/peliculas/9999 | jq</pre>
+        <p>Verifica cada cambio con <code>SELECT * FROM pelicula;</code> en la consola MySQL.</p>
+      </div>
+
+      <div class="resources">
+        <div class="resources-title">Recursos</div>
+        <ul>
+          <li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-requestmapping.html" target="_blank">Spring MVC – @RequestMapping</a></li>
+          <li><a href="https://developer.mozilla.org/es/docs/Web/HTTP/Status" target="_blank">MDN – Códigos de estado HTTP</a></li>
+          <li><a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/ResponseEntity.html" target="_blank">ResponseEntity – Javadoc</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         SECCIÓN 4 – CONSULTAS
+    ═════════════════════════════════════════════ -->
+    <section id="consultas">
+      <div class="session-tag">Sesiones 9–10 · ~3 h</div>
+      <h2>4. Consultas con Spring Data JPA</h2>
+
+      <p>
+        Más allá de <code>findAll()</code> y <code>findById()</code>, Spring Data JPA ofrece tres
+        mecanismos para consultas avanzadas que se corresponden con los que viste en RA8.
+      </p>
+
+      <h3 id="derivados">4.1 Métodos derivados por convención de nombres</h3>
+      <p>
+        Si el nombre del método sigue la convención de Spring Data, <strong>se genera el SQL automáticamente</strong>.
+        No hace falta escribir ni JPQL ni SQL:
+      </p>
+
+<pre><code><span class="kw">public interface</span> <span class="typ">PeliculaRepository</span> <span class="kw">extends</span> <span class="typ">JpaRepository</span>&lt;<span class="typ">Pelicula</span>, <span class="typ">Long</span>&gt; {
+
+    <span class="cm">// SELECT * FROM pelicula WHERE anio = ?</span>
+    <span class="typ">List</span>&lt;<span class="typ">Pelicula</span>&gt; <span class="mth">findByAnio</span>(<span class="typ">Integer</span> anio);
+
+    <span class="cm">// SELECT * FROM pelicula WHERE duracion &lt; ?</span>
+    <span class="typ">List</span>&lt;<span class="typ">Pelicula</span>&gt; <span class="mth">findByDuracionLessThan</span>(<span class="typ">Integer</span> maxMinutos);
+
+    <span class="cm">// Navega la relación: JOIN director WHERE director.nacionalidad = ?</span>
+    <span class="typ">List</span>&lt;<span class="typ">Pelicula</span>&gt; <span class="mth">findByDirectorNacionalidad</span>(<span class="typ">String</span> nacionalidad);
+
+    <span class="cm">// LIKE case-insensitive</span>
+    <span class="typ">List</span>&lt;<span class="typ">Pelicula</span>&gt; <span class="mth">findByTituloContainingIgnoreCase</span>(<span class="typ">String</span> texto);
+}</code></pre>
+
+      <div class="note">
+        Las palabras clave de los métodos derivados incluyen: <code>findBy</code>, <code>countBy</code>,
+        <code>deleteBy</code>, <code>LessThan</code>, <code>GreaterThan</code>, <code>Between</code>,
+        <code>Like</code>, <code>Containing</code>, <code>IgnoreCase</code>, <code>OrderBy</code>, etc.
+      </div>
+
+      <h3 id="query">4.2 @Query con JPQL — misma sintaxis que RA8</h3>
+      <p>
+        Para consultas más complejas, usamos <code>@Query</code>. La sintaxis JPQL es exactamente la misma
+        que aprendiste en RA8 con <code>createQuery()</code>:
+      </p>
+
+<pre><code><span class="cm">// En RA8 escribías:</span>
+<span class="typ">TypedQuery</span>&lt;<span class="typ">Pelicula</span>&gt; q = em.<span class="mth">createQuery</span>(
+    <span class="str">"SELECT p FROM Pelicula p WHERE p.precioEntrada &lt;= :max"</span>, <span class="typ">Pelicula</span>.class);
+q.<span class="mth">setParameter</span>(<span class="str">"max"</span>, max);
+
+<span class="cm">// En RA9 escribes en el repositorio:</span>
+<span class="ann">@Query</span>(<span class="str">"SELECT p FROM Pelicula p WHERE p.precioEntrada &lt;= :max ORDER BY p.precioEntrada ASC"</span>)
+<span class="typ">List</span>&lt;<span class="typ">Pelicula</span>&gt; <span class="mth">findBaratas</span>(<span class="ann">@Param</span>(<span class="str">"max"</span>) <span class="typ">BigDecimal</span> max);
+
+<span class="cm">// Agregados</span>
+<span class="ann">@Query</span>(<span class="str">"SELECT AVG(p.precioEntrada) FROM Pelicula p"</span>)
+<span class="typ">BigDecimal</span> <span class="mth">avgPrecio</span>();
+
+<span class="ann">@Query</span>(<span class="str">"SELECT COUNT(p) FROM Pelicula p"</span>)
+<span class="typ">Long</span> <span class="mth">totalPeliculas</span>();
+
+<span class="cm">// SQL nativo cuando JPQL no basta</span>
+<span class="ann">@Query</span>(value = <span class="str">"SELECT * FROM pelicula WHERE anio BETWEEN :inicio AND :fin"</span>,
+       nativeQuery = <span class="kw">true</span>)
+<span class="typ">List</span>&lt;<span class="typ">Pelicula</span>&gt; <span class="mth">findByRangoAnio</span>(<span class="ann">@Param</span>(<span class="str">"inicio"</span>) <span class="kw">int</span> inicio, <span class="ann">@Param</span>(<span class="str">"fin"</span>) <span class="kw">int</span> fin);</code></pre>
+
+      <h3 id="paginacion">4.3 Paginación con Pageable</h3>
+      <p>
+        <code>Pageable</code> sustituye a <code>setFirstResult / setMaxResults</code> de RA8. El controlador
+        puede recibir los parámetros de paginación automáticamente desde la URL:
+      </p>
+
+<pre><code><span class="cm">// Repositorio</span>
+<span class="typ">Page</span>&lt;<span class="typ">Pelicula</span>&gt; <span class="mth">findAll</span>(<span class="typ">Pageable</span> pageable);
+
+<span class="cm">// Controlador</span>
+<span class="ann">@GetMapping</span>(<span class="str">"/paginadas"</span>)
+<span class="kw">public</span> <span class="typ">Page</span>&lt;<span class="typ">PeliculaDTO</span>&gt; <span class="mth">paginadas</span>(<span class="typ">Pageable</span> pageable) {
+    <span class="kw">return</span> peliculaService.<span class="mth">listarPaginadas</span>(pageable);
+}
+
+<span class="cm">// Llamada desde el cliente:
+// GET /peliculas/paginadas?page=0&amp;size=3&amp;sort=titulo,asc</span></code></pre>
+
+      <p>La respuesta incluye metadatos de paginación: número de página, total de elementos, total de páginas, etc.</p>
+
+      <div class="exercise">
+        <div class="exercise-title">Ejercicio 4.1 – Endpoints de consulta</div>
+        <p>Añade al <code>PeliculaController</code> y <code>PeliculaService</code> los siguientes endpoints:</p>
+        <ol>
+          <li><code>GET /peliculas/anio/{anio}</code> — Películas de un año concreto (método derivado)</li>
+          <li><code>GET /peliculas/baratas?max=8.50</code> — Películas con precio ≤ max (<code>@Query</code> JPQL)</li>
+          <li><code>GET /peliculas/estadisticas</code> — JSON con precio promedio, máximo, mínimo y total</li>
+          <li><code>GET /peliculas/paginadas?page=0&amp;size=2</code> — Lista paginada</li>
+        </ol>
+        <p>Verifica cada endpoint con <code>curl</code> y comprueba el SQL generado en los logs.</p>
+      </div>
+
+      <div class="resources">
+        <div class="resources-title">Recursos</div>
+        <ul>
+          <li><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html" target="_blank">Spring Data JPA – Query methods</a></li>
+          <li><a href="https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables" target="_blank">Spring Data – Paginación y ordenación</a></li>
+          <li><a href="https://jakarta.ee/specifications/persistence/3.1/jakarta-persistence-spec-3.1.html#a4665" target="_blank">Jakarta Persistence – JPQL</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         SECCIÓN 5 – RELACIONES
+    ═════════════════════════════════════════════ -->
+    <section id="relaciones">
+      <div class="session-tag">Sesiones 11–13 · ~4 h</div>
+      <h2>5. Relaciones entre entidades</h2>
+
+      <p>
+        Las anotaciones de relaciones son exactamente las mismas que en RA8. La diferencia es que ahora
+        Hibernate genera columnas de clave foránea reales en MySQL, que puedes ver con
+        <code>DESCRIBE pelicula;</code> o <code>SHOW CREATE TABLE pelicula;</code>.
+      </p>
+
+      <h3 id="onetomany">5.1 @OneToMany y @ManyToOne</h3>
+      <p>
+        Un <strong>Director</strong> tiene muchas <strong>Películas</strong>. En MySQL esto se traduce en una
+        columna <code>director_id</code> en la tabla <code>pelicula</code> (clave foránea):
+      </p>
+
+<pre><code><span class="cm">// Director.java — lado "uno"</span>
+<span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="typ">Director</span> {
+
+    <span class="ann">@OneToMany</span>(mappedBy = <span class="str">"director"</span>, cascade = <span class="typ">CascadeType</span>.ALL,
+               orphanRemoval = <span class="kw">true</span>, fetch = <span class="typ">FetchType</span>.LAZY)
+    <span class="ann">@JsonManagedReference</span>  <span class="cm">// evita bucle JSON al serializar</span>
+    <span class="kw">private</span> <span class="typ">List</span>&lt;<span class="typ">Pelicula</span>&gt; peliculas = <span class="kw">new</span> <span class="typ">ArrayList</span>&lt;&gt;();
+
+    <span class="cm">// método helper para mantener la coherencia bidireccional</span>
+    <span class="kw">public void</span> <span class="mth">addPelicula</span>(<span class="typ">Pelicula</span> p) {
+        peliculas.<span class="mth">add</span>(p);
+        p.<span class="mth">setDirector</span>(<span class="kw">this</span>);
+    }
+}
+
+<span class="cm">// Pelicula.java — lado "muchos"</span>
+<span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="typ">Pelicula</span> {
+
+    <span class="ann">@ManyToOne</span>(fetch = <span class="typ">FetchType</span>.LAZY)
+    <span class="ann">@JoinColumn</span>(name = <span class="str">"director_id"</span>)  <span class="cm">// columna FK en la tabla pelicula</span>
+    <span class="ann">@JsonBackReference</span>                  <span class="cm">// no serializar esta dirección</span>
+    <span class="kw">private</span> <span class="typ">Director</span> director;
+}</code></pre>
+
+      <div class="warning">
+        Sin <code>@JsonManagedReference</code> / <code>@JsonBackReference</code> (o DTOs), Jackson entraría
+        en un bucle infinito al serializar: Director serializa sus Películas, cada Película serializa su Director,
+        que serializa sus Películas… hasta <code>StackOverflowError</code>.
+      </div>
+
+      <h3 id="manytomany">5.2 @ManyToMany con @JoinTable</h3>
+      <p>
+        Una película puede tener varios géneros, y un género puede pertenecer a varias películas.
+        En MySQL esto requiere una <strong>tabla intermedia</strong> (<code>pelicula_genero</code>):
+      </p>
+
+<pre><code><span class="cm">// Pelicula.java</span>
+<span class="ann">@ManyToMany</span>(fetch = <span class="typ">FetchType</span>.LAZY)
+<span class="ann">@JoinTable</span>(
+    name = <span class="str">"pelicula_genero"</span>,
+    joinColumns = <span class="ann">@JoinColumn</span>(name = <span class="str">"pelicula_id"</span>),
+    inverseJoinColumns = <span class="ann">@JoinColumn</span>(name = <span class="str">"genero_id"</span>)
+)
+<span class="kw">private</span> <span class="typ">List</span>&lt;<span class="typ">Genero</span>&gt; generos = <span class="kw">new</span> <span class="typ">ArrayList</span>&lt;&gt;();
+
+<span class="cm">// Genero.java (lado inverso)</span>
+<span class="ann">@ManyToMany</span>(mappedBy = <span class="str">"generos"</span>, fetch = <span class="typ">FetchType</span>.LAZY)
+<span class="ann">@JsonIgnore</span>
+<span class="kw">private</span> <span class="typ">List</span>&lt;<span class="typ">Pelicula</span>&gt; peliculas = <span class="kw">new</span> <span class="typ">ArrayList</span>&lt;&gt;();</code></pre>
+
+      <p>
+        Tras arrancar la app, verifica en MySQL: <code>SHOW TABLES;</code> debe mostrar la tabla
+        <code>pelicula_genero</code> con dos columnas FK.
+      </p>
+
+      <h3 id="dto">5.3 DTOs: la solución limpia al problema JSON</h3>
+      <p>
+        Un <strong>DTO (Data Transfer Object)</strong> es una clase sin anotaciones JPA que representa
+        exactamente los datos que queremos enviar al cliente. Resuelve el problema del bucle JSON
+        y permite controlar qué campos se exponen:
+      </p>
+
+<pre><code><span class="kw">public class</span> <span class="typ">PeliculaDTO</span> {
+
+    <span class="kw">private</span> <span class="typ">Long</span> id;
+    <span class="kw">private</span> <span class="typ">String</span> titulo;
+    <span class="kw">private</span> <span class="typ">Integer</span> anio;
+    <span class="kw">private</span> <span class="typ">String</span> nombreDirector;   <span class="cm">// solo el nombre, no el objeto Director</span>
+    <span class="kw">private</span> <span class="typ">List</span>&lt;<span class="typ">String</span>&gt; generos;    <span class="cm">// solo los nombres de géneros</span>
+
+    <span class="kw">public static</span> <span class="typ">PeliculaDTO</span> <span class="mth">desde</span>(<span class="typ">Pelicula</span> p) {
+        <span class="typ">PeliculaDTO</span> dto = <span class="kw">new</span> <span class="typ">PeliculaDTO</span>();
+        dto.titulo = p.<span class="mth">getTitulo</span>();
+        dto.nombreDirector = p.<span class="mth">getDirector</span>() != <span class="kw">null</span>
+            ? p.<span class="mth">getDirector</span>().<span class="mth">getNombre</span>() + <span class="str">" "</span> + p.<span class="mth">getDirector</span>().<span class="mth">getApellidos</span>()
+            : <span class="kw">null</span>;
+        dto.generos = p.<span class="mth">getGeneros</span>().stream().<span class="mth">map</span>(<span class="typ">Genero</span>::<span class="mth">getNombre</span>).<span class="mth">toList</span>();
+        <span class="kw">return</span> dto;
+    }
+}</code></pre>
+
+      <p>Los endpoints anidados permiten operar con recursos relacionados:</p>
+
+<pre><code><span class="cm">// GET /directores/1/peliculas  →  filmografía del director 1</span>
+<span class="ann">@GetMapping</span>(<span class="str">"/{id}/peliculas"</span>)
+<span class="kw">public</span> <span class="typ">List</span>&lt;<span class="typ">PeliculaDTO</span>&gt; <span class="mth">peliculasDeDirector</span>(<span class="ann">@PathVariable</span> <span class="typ">Long</span> id) {
+    <span class="kw">return</span> directorService.<span class="mth">peliculasDeDirector</span>(id);
+}
+
+<span class="cm">// POST /directores/1/peliculas  →  añadir película al director 1</span>
+<span class="ann">@PostMapping</span>(<span class="str">"/{id}/peliculas"</span>)
+<span class="kw">public</span> <span class="typ">ResponseEntity</span>&lt;<span class="typ">PeliculaDTO</span>&gt; <span class="mth">agregarPelicula</span>(<span class="ann">@PathVariable</span> <span class="typ">Long</span> id,
+                                                      <span class="ann">@RequestBody</span> <span class="typ">Pelicula</span> p) {
+    <span class="kw">return</span> <span class="typ">ResponseEntity</span>.<span class="mth">status</span>(<span class="num">201</span>).<span class="mth">body</span>(directorService.<span class="mth">agregarPelicula</span>(id, p));
+}</code></pre>
+
+      <div class="exercise">
+        <div class="exercise-title">Ejercicio 5.1 – Filmografía de directores</div>
+        <ol>
+          <li>Crea dos directores via POST <code>/directores</code></li>
+          <li>Añade dos películas a cada director via POST <code>/directores/{id}/peliculas</code></li>
+          <li>Verifica con <code>SELECT * FROM pelicula;</code> que la columna <code>director_id</code> tiene los valores correctos</li>
+          <li>Obtén la filmografía completa con GET <code>/directores/{id}/peliculas</code></li>
+          <li>Elimina un director con DELETE <code>/directores/{id}</code> y comprueba que sus películas también desaparecen de MySQL (<code>CASCADE</code>)</li>
+          <li>Crea tres géneros y asígnalos a una película. Verifica la tabla <code>pelicula_genero</code></li>
+        </ol>
+      </div>
+
+      <div class="resources">
+        <div class="resources-title">Recursos</div>
+        <ul>
+          <li><a href="https://jakarta.ee/specifications/persistence/3.1/jakarta-persistence-spec-3.1.html#a14459" target="_blank">Jakarta Persistence – Relaciones</a></li>
+          <li><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html" target="_blank">Spring Data JPA – Query methods para relaciones</a></li>
+          <li><a href="https://github.com/FasterXML/jackson-databind" target="_blank">Jackson – @JsonManagedReference / @JsonBackReference</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         SECCIÓN 6 – TRANSACCIONES Y VALIDACIÓN
+    ═════════════════════════════════════════════ -->
+    <section id="transacciones">
+      <div class="session-tag">Sesiones 14–15 · ~1 h</div>
+      <h2>6. Transacciones y validación</h2>
+
+      <h3 id="transactional">6.1 @Transactional — gestión declarativa</h3>
+      <p>
+        En RA8 gestionabas las transacciones manualmente:
+      </p>
+
+<pre><code><span class="cm">// RA8 — gestión manual</span>
+<span class="typ">EntityTransaction</span> tx = em.<span class="mth">getTransaction</span>();
+<span class="kw">try</span> {
+    tx.<span class="mth">begin</span>();
+    em.<span class="mth">persist</span>(objeto);
+    tx.<span class="mth">commit</span>();
+} <span class="kw">catch</span> (<span class="typ">Exception</span> e) {
+    <span class="kw">if</span> (tx.<span class="mth">isActive</span>()) tx.<span class="mth">rollback</span>();
+}</code></pre>
+
+      <p>
+        En RA9, Spring gestiona las transacciones automáticamente. Basta con anotar el método del servicio
+        con <code>@Transactional</code>: Spring abre la transacción antes del método y hace
+        <code>commit</code> al salir, o <code>rollback</code> si se lanza una excepción no controlada:
+      </p>
+
+<pre><code><span class="cm">// RA9 — gestión declarativa</span>
+<span class="ann">@Transactional</span>  <span class="cm">// Spring abre tx → ejecuta método → commit o rollback automático</span>
+<span class="kw">public</span> <span class="typ">EntradaDTO</span> <span class="mth">comprarEntrada</span>(<span class="typ">Long</span> proyeccionId) {
+
+    <span class="typ">Proyeccion</span> proyeccion = proyeccionRepo.<span class="mth">findById</span>(proyeccionId)
+        .<span class="mth">orElseThrow</span>(() -&gt; <span class="kw">new</span> <span class="typ">RecursoNoEncontradoException</span>(...));
+
+    <span class="kw">if</span> (proyeccion.<span class="mth">getAsientosDisponibles</span>() &lt;= <span class="num">0</span>) {
+        <span class="cm">// lanzar excepción provoca rollback automático</span>
+        <span class="kw">throw new</span> <span class="typ">SinAsientosException</span>(proyeccionId);
+    }
+
+    <span class="cm">// decrementa asientos y persiste la entrada en la misma transacción</span>
+    proyeccion.<span class="mth">setAsientosDisponibles</span>(proyeccion.<span class="mth">getAsientosDisponibles</span>() - <span class="num">1</span>);
+    proyeccionRepo.<span class="mth">save</span>(proyeccion);
+
+    <span class="typ">Entrada</span> entrada = <span class="kw">new</span> <span class="typ">Entrada</span>(proyeccion.<span class="mth">getPelicula</span>().<span class="mth">getPrecioEntrada</span>(), proyeccion);
+    entradaRepo.<span class="mth">save</span>(entrada);
+
+    <span class="kw">return</span> <span class="typ">EntradaDTO</span>.<span class="mth">desde</span>(entrada);
+}</code></pre>
+
+      <p>
+        Si <code>SinAsientosException</code> es lanzada, Spring hace rollback: el decremento de asientos
+        no se persiste en MySQL. Las propiedades ACID quedan garantizadas por MySQL y por <code>@Transactional</code>.
+      </p>
+
+      <h3 id="validation">6.2 Bean Validation en entidades y controladores</h3>
+      <p>
+        Las anotaciones de validación que pusiste en las entidades (<code>@NotBlank</code>, <code>@Positive</code>,
+        <code>@DecimalMin</code>…) se activan cuando el controlador anota el parámetro con <code>@Valid</code>:
+      </p>
+
+<pre><code><span class="cm">// Controlador: @Valid dispara la validación antes de entrar al método</span>
+<span class="ann">@PostMapping</span>
+<span class="kw">public</span> <span class="typ">ResponseEntity</span>&lt;<span class="typ">PeliculaDTO</span>&gt; <span class="mth">crear</span>(<span class="ann">@Valid</span> <span class="ann">@RequestBody</span> <span class="typ">Pelicula</span> pelicula) {
+    <span class="kw">return</span> <span class="typ">ResponseEntity</span>.<span class="mth">status</span>(<span class="num">201</span>).<span class="mth">body</span>(peliculaService.<span class="mth">guardar</span>(pelicula));
+}
+
+<span class="cm">// Si falla, GlobalExceptionHandler captura MethodArgumentNotValidException</span>
+<span class="cm">// y devuelve 400 Bad Request con la lista de errores:</span>
+<span class="cm">// {</span>
+<span class="cm">//   "status": 400,</span>
+<span class="cm">//   "mensaje": "Error de validación",</span>
+<span class="cm">//   "detalles": ["titulo: El título no puede estar vacío", "duracion: La duración debe ser positiva"]</span>
+<span class="cm">// }</span></code></pre>
+
+      <table>
+        <thead><tr><th>Anotación</th><th>Qué valida</th></tr></thead>
+        <tbody>
+          <tr><td><code>@NotBlank</code></td><td>String no nulo, no vacío, no solo espacios</td></tr>
+          <tr><td><code>@NotNull</code></td><td>El campo no puede ser null</td></tr>
+          <tr><td><code>@Positive</code></td><td>Número estrictamente positivo (&gt; 0)</td></tr>
+          <tr><td><code>@PositiveOrZero</code></td><td>Número ≥ 0</td></tr>
+          <tr><td><code>@Min(1888)</code></td><td>Número ≥ 1888</td></tr>
+          <tr><td><code>@DecimalMin("0.0")</code></td><td>Decimal ≥ 0.0</td></tr>
+          <tr><td><code>@Size(min=3, max=100)</code></td><td>Longitud de String</td></tr>
+        </tbody>
+      </table>
+
+      <div class="exercise">
+        <div class="exercise-title">Ejercicio 6.1 – Compra transaccional de entradas</div>
+        <p><strong>Escenario:</strong> el endpoint <code>POST /proyecciones/{id}/entradas</code> compra una
+          entrada para la proyección indicada, decrementando <code>asientos_disponibles</code> en MySQL.</p>
+        <ol>
+          <li>Crea una proyección con <code>asientosDisponibles = 2</code></li>
+          <li>Compra dos entradas (POST × 2). Verifica que <code>asientos_disponibles</code> pasa de 2 a 0</li>
+          <li>Intenta comprar una tercera: debe devolver <strong>409 Conflict</strong> y el campo queda en 0 en MySQL (rollback)</li>
+          <li>Prueba la validación: intenta crear una película sin título (<code>{"anio":2024}</code>) y comprueba el 400 con lista de errores</li>
+          <li>Prueba con precio negativo (<code>"precioEntrada": -5.0</code>) y verifica el mensaje de error de campo</li>
+        </ol>
+      </div>
+
+      <div class="resources">
+        <div class="resources-title">Recursos</div>
+        <ul>
+          <li><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction.html" target="_blank">Spring – Transaction Management</a></li>
+          <li><a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/transaction/annotation/Transactional.html" target="_blank">@Transactional – Javadoc</a></li>
+          <li><a href="https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html" target="_blank">Spring – Bean Validation</a></li>
+          <li><a href="https://jakarta.ee/specifications/bean-validation/3.0/" target="_blank">Jakarta Bean Validation 3.0 – Especificación</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         RECURSOS OFICIALES
+    ═════════════════════════════════════════════ -->
+    <section id="recursos">
+      <h2>Recursos oficiales</h2>
+      <table>
+        <thead><tr><th>Recurso</th><th>URL</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Spring Boot Reference</td>
+            <td><a href="https://docs.spring.io/spring-boot/reference/" target="_blank">docs.spring.io/spring-boot</a></td>
+            <td>Documentación completa de Spring Boot</td>
+          </tr>
+          <tr>
+            <td>Spring Data JPA Reference</td>
+            <td><a href="https://docs.spring.io/spring-data/jpa/reference/" target="_blank">docs.spring.io/spring-data/jpa</a></td>
+            <td>Repositorios, query methods, paginación</td>
+          </tr>
+          <tr>
+            <td>Jakarta Persistence 3.1</td>
+            <td><a href="https://jakarta.ee/specifications/persistence/3.1/" target="_blank">jakarta.ee/specifications/persistence</a></td>
+            <td>Especificación JPA (@Entity, relaciones, JPQL)</td>
+          </tr>
+          <tr>
+            <td>Jakarta Bean Validation 3.0</td>
+            <td><a href="https://jakarta.ee/specifications/bean-validation/3.0/" target="_blank">jakarta.ee/specifications/bean-validation</a></td>
+            <td>@NotBlank, @Positive, @Valid, etc.</td>
+          </tr>
+          <tr>
+            <td>MySQL Docker Image</td>
+            <td><a href="https://hub.docker.com/_/mysql" target="_blank">hub.docker.com/_/mysql</a></td>
+            <td>Configuración del contenedor MySQL</td>
+          </tr>
+          <tr>
+            <td>Docker Compose</td>
+            <td><a href="https://docs.docker.com/compose/" target="_blank">docs.docker.com/compose</a></td>
+            <td>Orquestación de contenedores</td>
+          </tr>
+          <tr>
+            <td>MySQL Connector/J</td>
+            <td><a href="https://dev.mysql.com/doc/connector-j/en/" target="_blank">dev.mysql.com/doc/connector-j</a></td>
+            <td>Driver JDBC de MySQL para Java</td>
+          </tr>
+          <tr>
+            <td>Spring Initializr</td>
+            <td><a href="https://start.spring.io" target="_blank">start.spring.io</a></td>
+            <td>Generador de proyectos Spring Boot</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  RA9 – Bases de datos relacionales · DAW · Programación · Java 17+ · Spring Boot 3.3 · MySQL 8 · Docker
+</footer>
+
+</body>
+</html>

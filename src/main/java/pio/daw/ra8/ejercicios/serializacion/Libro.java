@@ -72,6 +72,18 @@ public class Libro implements Serializable {
     }
 
     public static void main(String[] args) {
+        Libro libroAntes = new Libro("100 años de soledad", "Gabriel Garcia Marquez", 20.0);
+
+        System.out.println(libroAntes);
+
+        libroAntes.guardar(RUTA_DEFAULT);
+
+        System.out.println("Libro guardado");
+
+        Libro libroDespues = Libro.cargar(RUTA_DEFAULT);
+
+        System.out.println(libroDespues);
+
         
         
     }
